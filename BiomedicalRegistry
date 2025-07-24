@@ -1,0 +1,101 @@
+import tkinter as tk
+from tkinter import messagebox, ttk
+import sqlite3
+
+class BiomedicalRegistryApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Biomedical Registry")
+        self.root.geometry("400x300")
+
+        # Initialize SQLite database
+        self.conn = sqlite3.connect("biomedical_registry.db")
+        self.create_table()
+
+        # GUI Elements
+        tk.Label(root, text="Patient Name:").grid(row=0, column=0, padx=10, pady=5, sticky="e")
+        self.name_entry = tk.Entry(root)
+        self.name_entry.grid(row=0, column=1, padx=10, pady=5)
+
+        tk.Label(root, text="Age:").grid(row=1, column=0, padx=10, pady=5, sticky="e")
+        self.age_entry = tk.Entry(root)
+        self.age_entry.grid(row=1, column=1, padx=10, pady=5)
+
+        tk.Label(root, text="Medical Condition:").grid(row=2, column=0, padx=10, pady=5, sticky="e")
+        self.condition_entry = tk.Entry(root)
+        self.condition_entry.grid(row=2, column=1, padx=10, pady=5)
+
+        tk.Button(root, text="Save Patient", command=self.save_patient).grid(row=3, column=0, columnspan=2, pady=10)
+        tk.Button(root, text="View Registry", command=self.view_registry).grid(row=4, column=0, columnspan=2, pady=10)
+
+    def create_table(self):
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS patients (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                age INTEGER NOT NULL,
+                condition TEXT NOT NULL
+            )
+        ''')
+        self.conn.commit()
+
+    def save_patient(self):
+        name = self.name_entry.get().strip()
+        age = self.age_entry.get().strip()
+        condition = self.condition_entry.get().strip()
+
+        # Basic validation
+        if not name or not age or not condition:
+            messagebox.showerror("Error", "All fields are required!")
+            return
+        try:
+            age = int(age)
+            if age <= 0:
+                raise ValueError("Age must be positive")
+        except ValueError:
+            messagebox.showerror("Error", "Age must be a valid number!")
+            return
+
+        # Save to database
+        cursor = self.conn.cursor()
+        cursor.execute("INSERT INTO patients (name, age, condition) VALUES (?, ?, ?)", (name, age, condition))
+        self.conn.commit()
+
+        messagebox.showinfo("Success", "Patient data saved successfully!")
+        self.name_entry.delete(0, tk.END)
+        self.age_entry.delete(0, tk.END)
+        self.condition_entry.delete(0, tk.END)
+
+    def view_registry(self):
+        # Create a new window for the registry
+        registry_window = tk.Toplevel(self.root)
+        registry_window.title("Patient Registry")
+        registry_window.geometry("600x400")
+
+        # Create Treeview to display data
+        tree = ttk.Treeview(registry_window, columns=("ID", "Name", "Age", "Condition"), show="headings")
+        tree.heading("ID", text="ID")
+        tree.heading("Name", text="Name")
+        tree.heading("Age", text="Age")
+        tree.heading("Condition", text="Condition")
+        tree.column("ID", width=50)
+        tree.column("Name", width=200)
+        tree.column("Age", width=50)
+        tree.column("Condition", width=200)
+        tree.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Fetch and display data
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM patients")
+        for row in cursor.fetchall():
+            tree.insert("", tk.END, values=row)
+
+    def __del__(self):
+        # Close database connection when the app closes
+        self.conn.close()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = BiomedicalRegistryApp(root)
+    root.mainloop()
