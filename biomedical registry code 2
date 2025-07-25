@@ -1,0 +1,10 @@
+from cryptography.fernet import Fernet
+
+# Generate and save a key (do this once and store securely)
+key = Fernet.generate_key()
+cipher = Fernet(key)
+
+# Encrypt condition before saving
+encrypted_condition = cipher.encrypt(condition.encode()).decode()
+# Decrypt when retrieving
+decrypted_condition = cipher.decrypt(encrypted_condition.encode()).decode()
