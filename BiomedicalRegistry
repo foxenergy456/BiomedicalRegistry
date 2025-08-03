@@ -95,7 +95,3 @@ class BiomedicalRegistryApp:
         # Close database connection when the app closes
         self.conn.close()
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = BiomedicalRegistryApp(root)
-    root.mainloop()
