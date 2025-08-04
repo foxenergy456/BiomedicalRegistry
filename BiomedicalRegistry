@@ -91,7 +91,5 @@ class BiomedicalRegistryApp:
         for row in cursor.fetchall():
             tree.insert("", tk.END, values=row)
 
-    def __del__(self):
-        # Close database connection when the app closes
-        self.conn.close()
+
 
