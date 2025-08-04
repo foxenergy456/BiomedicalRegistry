@@ -1,0 +1,3 @@
+    def __del__(self):
+        # Close database connection when the app closes
+        self.conn.close()
