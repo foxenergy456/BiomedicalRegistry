@@ -85,11 +85,6 @@ class BiomedicalRegistryApp:
         tree.column("Condition", width=200)
         tree.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Fetch and display data
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM patients")
-        for row in cursor.fetchall():
-            tree.insert("", tk.END, values=row)
-
+      
 
 
