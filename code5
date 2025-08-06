@@ -1,0 +1,5 @@
+  # Fetch and display data
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM patients")
+        for row in cursor.fetchall():
+            tree.insert("", tk.END, values=row)
